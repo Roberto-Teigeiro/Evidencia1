@@ -112,28 +112,49 @@ string GetCurrentTimestamp() {
 }
 
 
-void buscarDatos(int low, int high, int key, const vector<int>& array){
-    ofstream archivo(GetCurrentTimestamp()+ "_Search");
-    if (low <= high) {
-        int mid = low + (high - low) / 2;
-        if (key == array[mid]) {
-            // return mid;
-            archivo<<array[mid]<<endl;
-        }
-        if (array[mid] < key) {
-            return buscarDatos(mid + 1, high, key, array);
-        } else {
-            return buscarDatos(low, mid - 1, key, array);
+int busqLineal(const vector<string>& array,string keylow,string keyhigh, ofstream& archivo){
+    int contador=0;
+    for (int i = 0; i < array.size(); i++) {
+        if (array[i].substr(0,15) < keylow && array[i].substr(0,15) > keyhigh) { 
+            archivo << array[i] << endl;
+            contador++;
         }
     }
-    
+    return contador;
+}
 
+int buscarDatos(string keyhigh, string keylow, const vector<string>& array){
+   ofstream archivo(GetCurrentTimestamp()+ "_Search.txt");
+   int contador = busqLineal(array, keylow, keyhigh, archivo);
+    archivo.close();
+    return contador;
+}
+string monthToString(int month) {
+    const char* months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+
+    if (month >= 1 && month <= 12) {
+        return months[month - 1];
+    } else {
+        return "Mes Invalido"; 
+    }
 }
 
 int main(){
+    string diai, diaf;
+    int mesi, mesf;
     vector<string> datos;
     readfiles(datos);
     ordenaMerge(datos);
-    printarr(datos);
+    cout<<"Dame el dia inicial (1-31)";
+    cin>>diai;
+    cout<<"Dame el mes (1-12)";
+    cin>>mesi;
+    cout<<"Dame el dia final (1-31)";
+    cin>>diaf;
+    cout<<"Dame el mes final(1-12)";
+    cin>>mesf;
+    int contador=buscarDatos(monthToString(mesi) + " " + diai, monthToString(mesf) + " " + diaf, datos);
+    cout<<"se retornaron: "<<contador<< " lineas"<<endl<<"Presiona Enter para salir.";
+    cin.get();
 
-}
+} 
