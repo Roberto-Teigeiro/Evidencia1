@@ -9,19 +9,25 @@
 
 using namespace std;
 
-
+// Función para leer los datos del archivo y almacenarlos en un vector
 void readfiles(vector<string>& data){
     string line;
     ifstream archivo;
     archivo.open("bitacora.txt");
     if (archivo.is_open()){
         while(getline(archivo, line)){
+        if (line[5]==' ') {
+            line.insert(4, "0");
+            
+        } 
             data.push_back(line);
+        
         }
     }
-
+    archivo.close(); // Cierra el archivo después de leerlo
 }
 
+// Algoritmo de ordenamiento por inserción
 void insertionSort(vector<string>& array) {
     for (int j = 1; j < array.size(); j++) {
         string key = array[j];
@@ -36,7 +42,7 @@ void insertionSort(vector<string>& array) {
     }
 }
 
-
+// Función para combinar dos subarrays ordenados en el algoritmo de ordenamiento merge sort
 void merge(vector<string>& array, int left, int mid, int right) {
     int n1 = mid - left + 1;
     int n2 = right - mid;
@@ -54,7 +60,7 @@ void merge(vector<string>& array, int left, int mid, int right) {
 
     int i = 0, j = 0, k = left;
     while (i < n1 && j < n2) {
-        if (leftArray[i].substr(0, 15) <= rightArray[j].substr(0, 15)) {
+        if (leftArray[i].substr(0, 15) < rightArray[j].substr(0, 15)) {
             array[k] = leftArray[i];
             i++;
         } else {
@@ -77,6 +83,7 @@ void merge(vector<string>& array, int left, int mid, int right) {
     }
 }
 
+// Función auxiliar para ordenar un rango del vector en el algoritmo de ordenamiento merge sort
 void ordenaMergeHelper(vector<string>& array, int left, int right) {
     if (left < right) {
         int mid = left + (right - left) / 2;
@@ -90,19 +97,21 @@ void ordenaMergeHelper(vector<string>& array, int left, int right) {
     }
 }
 
+// Función principal de ordenamiento merge sort
 void ordenaMerge(vector<string>& array) {
     int n = array.size();
     ordenaMergeHelper(array, 0, n - 1);
 }
 
-
+// Función para imprimir el contenido del vector
 void printarr(vector<string>& array){
-     for (int i = 0; i < array.size(); i++) {
-        cout << array[i]<< endl;
+    for (int i = 0; i < array.size(); i++) {
+        cout << array[i] << endl;
     }
-    cout<<endl;
+    cout << endl;
 }
 
+// Función para obtener la marca de tiempo actual en formato de cadena
 string GetCurrentTimestamp() {
     auto currentTime = chrono::system_clock::now();
     time_t time = chrono::system_clock::to_time_t(currentTime);
@@ -111,11 +120,11 @@ string GetCurrentTimestamp() {
     return oss.str();
 }
 
-
-int busqLineal(const vector<string>& array,string keylow,string keyhigh, ofstream& archivo){
-    int contador=0;
+// Función para realizar una búsqueda lineal en el vector y escribir los resultados en un archivo
+int busqLineal(const vector<string>& array, string keylow, string keyhigh, ofstream& archivo){
+    int contador = 0;
     for (int i = 0; i < array.size(); i++) {
-        if (array[i].substr(0,15) < keylow && array[i].substr(0,15) > keyhigh) { 
+        if (array[i].substr(0,15) < keylow && array[i].substr(0,15) > keyhigh) {
             archivo << array[i] << endl;
             contador++;
         }
@@ -123,19 +132,22 @@ int busqLineal(const vector<string>& array,string keylow,string keyhigh, ofstrea
     return contador;
 }
 
+// Función para buscar datos en un rango específico y guardar los resultados en un archivo
 int buscarDatos(string keyhigh, string keylow, const vector<string>& array){
-   ofstream archivo(GetCurrentTimestamp()+ "_Search.txt");
-   int contador = busqLineal(array, keylow, keyhigh, archivo);
+    ofstream archivo(GetCurrentTimestamp() + "_Search.txt");
+    int contador = busqLineal(array, keylow, keyhigh, archivo);
     archivo.close();
     return contador;
 }
+
+// Función para convertir un número de mes a su representación en cadena
 string monthToString(int month) {
-    const char* months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+    const char* months[] = {"Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"};
 
     if (month >= 1 && month <= 12) {
         return months[month - 1];
     } else {
-        return "Mes Invalido"; 
+        return "Mes Inválido";
     }
 }
 
@@ -145,16 +157,28 @@ int main(){
     vector<string> datos;
     readfiles(datos);
     ordenaMerge(datos);
-    cout<<"Dame el dia inicial (1-31)";
-    cin>>diai;
-    cout<<"Dame el mes (1-12)";
-    cin>>mesi;
-    cout<<"Dame el dia final (1-31)";
-    cin>>diaf;
-    cout<<"Dame el mes final(1-12)";
-    cin>>mesf;
-    int contador=buscarDatos(monthToString(mesi) + " " + diai, monthToString(mesf) + " " + diaf, datos);
-    cout<<"se retornaron: "<<contador<< " lineas"<<endl<<"Presiona Enter para salir.";
-    cin.get();
+    cout << "Dame el dia inicial (1-31): ";
+    cin >> diai;
+    cout << "Dame el mes (1-12): ";
+    cin >> mesi;
+    cout << "Dame el dia final (1-31): ";
+    cin >> diaf;
+    cout << "Dame el mes final (1-12): ";
+    cin >> mesf;
 
-} 
+if (diai == "1" || diai == "2" || diai == "3") {
+    diai = "0" + diai;
+}
+
+if (diaf == "1" || diaf == "2" || diaf == "3") {
+    diaf = "0" + diaf;
+}
+
+    int contador = buscarDatos(monthToString(mesi) + " " + diai, monthToString(mesf) + " " + diaf, datos);
+    cout << "Se retornaron: " << contador << " lineas" << endl;
+    cout << "Presiona Enter para salir.";
+    cin.ignore(); // Ignora cualquier carácter de nueva línea previo
+    cin.get();    // Espera la pulsación de la tecla Enter
+
+    return 0; // Salida exitosa
+}
