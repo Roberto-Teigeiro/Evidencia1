@@ -151,7 +151,19 @@ string monthToString(int month) {
     }
 }
 
-int main(){
+int ipto_int(string ip){
+    unsigned int total;
+    string part;
+    vector<int> ipv;
+    stringstream ips(ip);
+     while (getline(ips, part, '.')) {
+        ipv.push_back(stoi(part));
+    }
+    total= ipv[3] | (ipv[2] << 8) | (ipv[1] << 16) | (ipv[0] << 24);
+    return total;
+}
+
+void buscar_mes(){
     string diai, diaf;
     int mesi, mesf;
     vector<string> datos;
@@ -179,6 +191,27 @@ if (diaf == "1" || diaf == "2" || diaf == "3") {
     cout << "Presiona Enter para salir.";
     cin.ignore(); // Ignora cualquier carácter de nueva línea previo
     cin.get();    // Espera la pulsación de la tecla Enter
+}
 
+void buscar_IP(){
+    string ipinicial, ipfinal;
+    vector<string> datos;
+    readfiles(datos);
+}
+
+int main(){
+cout<<"Hola, que deseas hacer?"<<endl<<"Buscar en el archivo por\n1.Fechas\n 2.Ips\n 3.Puertos de IP\n4.Salir";
+int seleccion;
+cin>>seleccion;
+switch(seleccion){
+    while(seleccion!=4){
+        case(1):
+            buscar_mes();
+            break;
+        case(2):
+
+    }
+}
+    
     return 0; // Salida exitosa
 }
