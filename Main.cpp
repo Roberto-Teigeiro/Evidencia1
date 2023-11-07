@@ -9,6 +9,7 @@
 #include <map>
 
 
+
 using namespace std;
 string GetCurrentTimestamp() {
     auto currentTime = chrono::system_clock::now();
@@ -342,11 +343,70 @@ void buscar(LinkedList* lista, int tipobusqueda) {
     
     archivo.close();
 }
+
+
+
+class BinarySearchTree{
+
+    Node* root;
+    public:
+    BinarySearchTree(int value){this->root=new Node(value,nullptr);};
+    void PreOrder(Node* root);
+    void InOrder();
+    void InOrder(Node* root);
+    void PostOrder(Node* root);
+    void PostOrder();
+    int height(Node* node);
+    void ancestors(int key);
+    int WhatLevelAmI(Node* node, int key,int count);
+    void PreOrder();
+    int height();
+    Node* BinarySearch(Node* node, int key);
+    void Insertion(int value);
+    int WhatLevelAmI(int key);
+    Node* Insertion(Node* root, int value);
+};
+
+Node* BinarySearchTree::Insertion(Node* root, int value){
+    if (root == nullptr) {
+        root = new Node(value,nullptr);
+        return root;
+    }
+    if(value <= root->data){
+        root->left = (root->left==nullptr) ? new Node(value,root) : Insertion(root->left, value);
+    }
+    else{
+        root->right = (root->right==nullptr) ? new Node(value,root) : Insertion(root->right, value);
+    }
+    return root;
+}
+class Node{
+    public:
+    Node* left;
+    Node* right;
+    int port;
+    int count;
+    Node* prev;
+
+    Node(){}
+    Node(int data,Node* prev){this->left=NULL; this->right=NULL; this->data=data; this->prev=prev;}
+};
+void BinarySearchTree::Insertion(int value){
+    Insertion(this->root,value);
+}
+
+
+
+void ConcurredPorts(){
+    BinarySearchTree bst;
+    
+}
+
 int main(){
 LinkedList lista;
 readfiles(lista);
 lista.performMergeSort();
-cout<<"\nHola, que deseas hacer?"<<endl<<"Buscar en el archivo por\n1.Fechas\n2.Ips\n3.Puertos de IP\n4.Salir\n";
+cout<<"\nHola, que deseas hacer?"<<endl<<"Buscar en el archivo por\n1.Fechas\n2.Ips\n3.Puertos de IP\n4.Mostrar los 5 puertos mas concurridos\n5.Salir\n";
 int seleccion;
 cin>>seleccion;
 switch(seleccion){
