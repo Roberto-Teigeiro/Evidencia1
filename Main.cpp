@@ -5,6 +5,7 @@
 #include <chrono>
 #include <iomanip>
 #include <sstream>
+#include <unordered_map>
 #include <ctime>
 #include <map>
 
@@ -344,68 +345,100 @@ void buscar(LinkedList* lista, int tipobusqueda) {
     archivo.close();
 }
 
+class NodeBST{
+    public:
+    NodeBST* left;
+    NodeBST* right;
+    int data;
+    string port;
+    NodeBST* prev;
+
+    NodeBST(){}
+    NodeBST(string port,int data,NodeBST* prev){this->left=NULL; this->right=NULL; this->data=data; this->prev=prev; this->port=port;}
+};
 
 
 class BinarySearchTree{
 
-    Node* root;
+    NodeBST* root;
     public:
-    BinarySearchTree(int value){this->root=new Node(value,nullptr);};
-    void PreOrder(Node* root);
+    BinarySearchTree(){this->root=nullptr;};
+    void PreOrder(NodeBST* root);
     void InOrder();
-    void InOrder(Node* root);
-    void PostOrder(Node* root);
+    void InOrder(NodeBST* root);
+    void PostOrder(NodeBST* root);
     void PostOrder();
-    int height(Node* node);
+    void Insertion(string puerto, int concurrences);
+    int height(NodeBST* node);
+    NodeBST* getroot(){return this->root;};
     void ancestors(int key);
-    int WhatLevelAmI(Node* node, int key,int count);
+    int WhatLevelAmI(NodeBST* node, int key,int count);
     void PreOrder();
     int height();
-    Node* BinarySearch(Node* node, int key);
-    void Insertion(int value);
+    NodeBST* BinarySearch(NodeBST* node, int key);
     int WhatLevelAmI(int key);
-    Node* Insertion(Node* root, int value);
+    NodeBST* Insertion(NodeBST* root, string puerto, int concurrences);
 };
 
-Node* BinarySearchTree::Insertion(Node* root, int value){
+NodeBST* BinarySearchTree::Insertion(NodeBST* root, string puerto, int concurrences){
     if (root == nullptr) {
-        root = new Node(value,nullptr);
+        root = new NodeBST(puerto,concurrences,nullptr);
         return root;
     }
-    if(value <= root->data){
-        root->left = (root->left==nullptr) ? new Node(value,root) : Insertion(root->left, value);
+    if(concurrences <= root->data){
+        root->left = (root->left==nullptr) ? new NodeBST(puerto,concurrences,root) : Insertion(root->left, puerto, concurrences);
+        cout<<"insertado";
     }
     else{
-        root->right = (root->right==nullptr) ? new Node(value,root) : Insertion(root->right, value);
+        root->right = (root->right==nullptr) ? new NodeBST(puerto,concurrences,root) : Insertion(root->right, puerto, concurrences);
+         cout<<"insertado";
     }
     return root;
 }
-class Node{
-    public:
-    Node* left;
-    Node* right;
-    int port;
-    int count;
-    Node* prev;
 
-    Node(){}
-    Node(int data,Node* prev){this->left=NULL; this->right=NULL; this->data=data; this->prev=prev;}
-};
-void BinarySearchTree::Insertion(int value){
-    Insertion(this->root,value);
+void BinarySearchTree::Insertion(string puerto, int concurrences){
+    Insertion(this->root,puerto,concurrences);
 }
 
-
-
-void ConcurredPorts(){
+void ConcurredPorts(LinkedList &lista) {
     BinarySearchTree bst;
-    
+    unordered_map<string, int> concurrences;
+    Node* temp = lista.Front;
+    while (temp != NULL) {
+        if (concurrences.count(temp->data->puerto) == 1) {
+            concurrences[temp->data->puerto] += 1;
+        } else {
+            concurrences[temp->data->puerto] = 1;
+        }
+        temp = temp->next;
+    }
+    for (const auto i : concurrences) {
+        cout << "Puerto: " << i.first << " Numero de veces visto: " << i.second << endl;
+        bst.Insertion(i.first,i.second);
+    }
+    bst.PreOrder(bst.getroot());
+
+}
+void BinarySearchTree::PreOrder(NodeBST* root){
+    if (root==NULL){
+        return;
+    }
+    cout<<root->port<<" ";
+    PreOrder(root->left);
+    PreOrder(root->right);
+
+}
+void BinarySearchTree::PreOrder(){
+    PreOrder(this->root);
 }
 
-int main(){
+
+
+int main(){ 
 LinkedList lista;
 readfiles(lista);
 lista.performMergeSort();
+ConcurredPorts(lista);
 cout<<"\nHola, que deseas hacer?"<<endl<<"Buscar en el archivo por\n1.Fechas\n2.Ips\n3.Puertos de IP\n4.Mostrar los 5 puertos mas concurridos\n5.Salir\n";
 int seleccion;
 cin>>seleccion;
