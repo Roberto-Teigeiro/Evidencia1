@@ -349,12 +349,12 @@ class NodeBST{
     public:
     NodeBST* left;
     NodeBST* right;
-    int data;
+    int concurrences;
     string port;
     NodeBST* prev;
 
     NodeBST(){}
-    NodeBST(string port,int data,NodeBST* prev){this->left=NULL; this->right=NULL; this->data=data; this->prev=prev; this->port=port;}
+    NodeBST(string port,int concurrences,NodeBST* prev){this->left=NULL; this->right=NULL; this->concurrences=concurrences; this->prev=prev; this->port=port;}
 };
 
 
@@ -368,7 +368,6 @@ class BinarySearchTree{
     void InOrder(NodeBST* root);
     void PostOrder(NodeBST* root);
     void PostOrder();
-    void Insertion(string puerto, int concurrences);
     int height(NodeBST* node);
     NodeBST* getroot(){return this->root;};
     void ancestors(int key);
@@ -377,61 +376,93 @@ class BinarySearchTree{
     int height();
     NodeBST* BinarySearch(NodeBST* node, int key);
     int WhatLevelAmI(int key);
-    NodeBST* Insertion(NodeBST* root, string puerto, int concurrences);
+    void Insertion(Node* Valor);
+    NodeBST* Insertion(NodeBST* Root,const Node* Valor);
 };
 
-NodeBST* BinarySearchTree::Insertion(NodeBST* root, string puerto, int concurrences){
-    if (root == nullptr) {
-        root = new NodeBST(puerto,concurrences,nullptr);
-        return root;
+
+
+NodeBST* BinarySearchTree::Insertion(NodeBST* root,const Node* Valor){
+    //cout<<"Comparando"<<endl;
+    if (this->root == nullptr) {
+    this->root = new NodeBST(Valor->data->puerto,1,NULL);
+    cout<<"Insertado raiz";
+    return root;
     }
-    if(concurrences <= root->data){
-        root->left = (root->left==nullptr) ? new NodeBST(puerto,concurrences,root) : Insertion(root->left, puerto, concurrences);
-        cout<<"insertado";
+     if(root->port==Valor->data->puerto){
+         root->concurrences++;
+         return root;
+         
+     }
+    if(Valor->data->puerto <= root->port ){
+        root->left = (root->left==nullptr) ? new NodeBST(Valor->data->puerto,1,root) : Insertion(root->left, Valor);
+        //cout<<"insertado izq: "<<Valor->data->puerto;
     }
     else{
-        root->right = (root->right==nullptr) ? new NodeBST(puerto,concurrences,root) : Insertion(root->right, puerto, concurrences);
-         cout<<"insertado";
+        root->right = (root->right==nullptr) ? new NodeBST(Valor->data->puerto,1,root) : Insertion(root->right, Valor);
+        // cout<<"insertado der: "<<Valor->data->puerto;
     }
+    //cout<<"Exito";
     return root;
 }
 
-void BinarySearchTree::Insertion(string puerto, int concurrences){
-    Insertion(this->root,puerto,concurrences);
+
+
+void BinarySearchTree::Insertion(Node* Valor){
+    Insertion(this->root,Valor);
 }
 
-void ConcurredPorts(LinkedList &lista) {
+
+
+
+
+void ConcurredPorts(LinkedList &lista){
     BinarySearchTree bst;
-    unordered_map<string, int> concurrences;
     Node* temp = lista.Front;
-    while (temp != NULL) {
-        if (concurrences.count(temp->data->puerto) == 1) {
-            concurrences[temp->data->puerto] += 1;
-        } else {
-            concurrences[temp->data->puerto] = 1;
-        }
-        temp = temp->next;
+    while(temp!=NULL){
+     bst.Insertion(temp);
+     //cout<<temp->data->ip<<endl;;
+     temp=temp->next;   
     }
-    for (const auto i : concurrences) {
-        cout << "Puerto: " << i.first << " Numero de veces visto: " << i.second << endl;
-        bst.Insertion(i.first,i.second);
-    }
-    bst.PreOrder(bst.getroot());
+
 
 }
-void BinarySearchTree::PreOrder(NodeBST* root){
-    if (root==NULL){
+
+
+
+// void ConcurredPorts(LinkedList &lista) {
+//     BinarySearchTree bst;
+//     unordered_map<string, int> concurrences;
+//     Node* temp = lista.Front;
+//     while (temp != NULL) {
+//         if (concurrences.count(temp->data->puerto) == 1) {
+//             concurrences[temp->data->puerto] += 1;
+//         } else {
+//             concurrences[temp->data->puerto] = 1;
+//         }
+//         temp = temp->next;
+//     }
+//     for (const auto i : concurrences) {
+//         cout << "Puerto: " << i.first << " Numero de veces visto: " << i.second << endl;
+//         bst.Insertion(i.first,i.second);
+//     }
+//     bst.PreOrder();
+
+// }
+void BinarySearchTree::InOrder(NodeBST* root){
+    if (root==nullptr){
         return;
     }
-    cout<<root->port<<" ";
-    PreOrder(root->left);
-    PreOrder(root->right);
+    InOrder(root->left);
 
-}
-void BinarySearchTree::PreOrder(){
-    PreOrder(this->root);
-}
+    
 
+
+    InOrder(root->right);
+}
+void BinarySearchTree::InOrder(){
+    InOrder(this->root);
+}
 
 
 int main(){ 
@@ -443,7 +474,7 @@ cout<<"\nHola, que deseas hacer?"<<endl<<"Buscar en el archivo por\n1.Fechas\n2.
 int seleccion;
 cin>>seleccion;
 switch(seleccion){
-    while(seleccion!=4){
+    while(seleccion!=5){
         case(1):
             buscar(&lista, 1);
             break;
@@ -453,6 +484,8 @@ switch(seleccion){
         case(3):
             buscar(&lista, 3);
             break;
+        case(4):
+            ConcurredPorts(lista);
     }
 }
     
