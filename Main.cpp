@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <ctime>
 #include <map>
-#include <list>
+#include <algorithm>
 
 
 using namespace std;
@@ -364,8 +364,8 @@ class BinarySearchTree{
     public:
     BinarySearchTree(){this->root=nullptr;};
     void PreOrder(NodeBST* root);
-    void InOrder(list<NodeBST*>* lista);
-    void InOrder(NodeBST* root,list<NodeBST*>* lista);
+    void InOrder(vector<NodeBST*>* lista);
+    void InOrder(NodeBST* root,vector<NodeBST*>* lista);
     int height(NodeBST* node);
     NodeBST* getroot(){return this->root;};
     void ancestors(int key);
@@ -422,42 +422,40 @@ void ConcurredPorts(LinkedList &lista){
      //cout<<temp->data->ip<<endl;;
      temp=temp->next;   
     }
-   list<NodeBST*> resultLista;
+   vector<NodeBST*> resultLista;
+   resultLista.push_back(bst.getroot());
     bst.InOrder(&resultLista);
+    for(auto i: resultLista){
+        cout<<endl<<"Los puertos mas usados: "<<i->port<<" Visto: "<<i->concurrences<< "Veces"<<endl;
+    }
 
 }
 
 
-
-// void ConcurredPorts(LinkedList &lista) {
-//     BinarySearchTree bst;
-//     unordered_map<string, int> concurrences;
-//     Node* temp = lista.Front;
-//     while (temp != NULL) {
-//         if (concurrences.count(temp->data->puerto) == 1) {
-//             concurrences[temp->data->puerto] += 1;
-//         } else {
-//             concurrences[temp->data->puerto] = 1;
-//         }
-//         temp = temp->next;
-//     }
-//     for (const auto i : concurrences) {
-//         cout << "Puerto: " << i.first << " Numero de veces visto: " << i.second << endl;
-//         bst.Insertion(i.first,i.second);
-//     }
-//     bst.PreOrder();
-
-// }
-void BinarySearchTree::InOrder(NodeBST* root, list<NodeBST*>* lista){
+void BinarySearchTree::InOrder(NodeBST* root, vector<NodeBST*>* lista){
     if (root==nullptr){
         return;
     }
-
     InOrder(root->left,lista);
-    cout<<"Puerto:"<<root->port<<" N de veces que aparece: "<<root->concurrences<<endl;
+    //cout<<" Puerto: "<<root->port<<" N de veces que aparece: "<<root->concurrences<<endl;
+    if (root->concurrences > (*lista)[0]->concurrences) {
+        if (lista->size() < 5) {
+            lista->push_back(root);
+        } else {
+            auto minElement = min_element(lista->begin(), lista->end(),
+                [](NodeBST* a, NodeBST* b) {
+                    return a->concurrences < b->concurrences;
+                });
+
+            if (root->concurrences > (*minElement)->concurrences) {
+                *minElement = root;
+            }
+        }
+    }
+
     InOrder(root->right,lista);
 }
-void BinarySearchTree::InOrder(list<NodeBST*>* lista){
+void BinarySearchTree::InOrder(vector<NodeBST*>* lista){
     InOrder(this->root,lista);
 }
 
@@ -466,7 +464,6 @@ int main(){
 LinkedList lista;
 readfiles(lista);
 lista.performMergeSort();
-ConcurredPorts(lista);
 cout<<"\nHola, que deseas hacer?"<<endl<<"Buscar en el archivo por\n1.Fechas\n2.Ips\n3.Puertos de IP\n4.Mostrar los 5 puertos mas concurridos\n5.Salir\n";
 int seleccion;
 cin>>seleccion;
@@ -483,6 +480,7 @@ switch(seleccion){
             break;
         case(4):
             ConcurredPorts(lista);
+            break;
     }
 }
     
