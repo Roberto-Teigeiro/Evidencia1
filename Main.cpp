@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <ctime>
 #include <map>
-
+#include <list>
 
 
 using namespace std;
@@ -364,10 +364,8 @@ class BinarySearchTree{
     public:
     BinarySearchTree(){this->root=nullptr;};
     void PreOrder(NodeBST* root);
-    void InOrder();
-    void InOrder(NodeBST* root);
-    void PostOrder(NodeBST* root);
-    void PostOrder();
+    void InOrder(list<NodeBST*>* lista);
+    void InOrder(NodeBST* root,list<NodeBST*>* lista);
     int height(NodeBST* node);
     NodeBST* getroot(){return this->root;};
     void ancestors(int key);
@@ -424,7 +422,8 @@ void ConcurredPorts(LinkedList &lista){
      //cout<<temp->data->ip<<endl;;
      temp=temp->next;   
     }
-
+   list<NodeBST*> resultLista;
+    bst.InOrder(&resultLista);
 
 }
 
@@ -449,19 +448,17 @@ void ConcurredPorts(LinkedList &lista){
 //     bst.PreOrder();
 
 // }
-void BinarySearchTree::InOrder(NodeBST* root){
+void BinarySearchTree::InOrder(NodeBST* root, list<NodeBST*>* lista){
     if (root==nullptr){
         return;
     }
-    InOrder(root->left);
 
-    
-
-
-    InOrder(root->right);
+    InOrder(root->left,lista);
+    cout<<"Puerto:"<<root->port<<" N de veces que aparece: "<<root->concurrences<<endl;
+    InOrder(root->right,lista);
 }
-void BinarySearchTree::InOrder(){
-    InOrder(this->root);
+void BinarySearchTree::InOrder(list<NodeBST*>* lista){
+    InOrder(this->root,lista);
 }
 
 
