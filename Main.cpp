@@ -6,12 +6,74 @@
 #include <iomanip>
 #include <sstream>
 #include <unordered_map>
+#include <unordered_set>
 #include <ctime>
 #include <map>
 #include <algorithm>
 
 
+
 using namespace std;
+
+
+
+class Graph {
+private:
+    unordered_map<int, unordered_set<int>> adjList;
+
+public:
+    void addEdge(int u, int v) {
+        adjList[u].insert(v);
+    }
+
+    int getFanOut(int u) {
+        return adjList[u].size();
+    }
+
+    vector<pair<int, int>> getMaxFanOutNodes() {
+        vector<pair<int, int>> maxFanOut; // Par de (nodo, fan-out)
+        int maxFan = 0;
+        for (auto& node : adjList) {
+            int fanOut = getFanOut(node.first);
+            if (fanOut > maxFan) {
+                maxFan = fanOut;
+                maxFanOut.clear();
+                maxFanOut.push_back({node.first, fanOut});
+            } else if (fanOut == maxFan) {
+                maxFanOut.push_back({node.first, fanOut});
+            }
+        }
+        return maxFanOut;
+    }
+};
+
+
+void readfiles(Graph& graph) {
+    string mes, dia, hora, ip, puerto, status, line;
+    ifstream archivo("bitacora.txt");
+
+    if (archivo.is_open()) {
+        while (getline(archivo, line)) {
+            istringstream iss(line);
+            iss >> mes >> dia >> hora >> ip; // Ajuste para leer el mes, día, hora e IP
+
+            // Separar IP del puerto
+            int pos = ip.find(":");
+            if (pos != string::npos) {
+                ip = ip.substr(0, pos);
+            }
+
+            // Descomponer la IP en segmentos y añadir al grafo
+            int seg1, seg2, seg3, seg4;
+            sscanf(ip.c_str(), "%d.%d.%d.%d", &seg1, &seg2, &seg3, &seg4);
+            graph.addEdge(seg1, seg2);
+            graph.addEdge(seg2, seg3);
+            graph.addEdge(seg3, seg4);
+        }
+    }
+}
+
+
 string GetCurrentTimestamp() {
     auto currentTime = chrono::system_clock::now();
     time_t time = chrono::system_clock::to_time_t(currentTime);
@@ -460,29 +522,49 @@ void BinarySearchTree::InOrder(vector<NodeBST*>* lista){
 }
 
 
-int main(){ 
-LinkedList lista;
-readfiles(lista);
-lista.performMergeSort();
-cout<<"\nHola, que deseas hacer?"<<endl<<"Buscar en el archivo por\n1.Fechas\n2.Ips\n3.Puertos de IP\n4.Mostrar los 5 puertos mas concurridos\n5.Salir\n";
-int seleccion;
-cin>>seleccion;
-switch(seleccion){
-    while(seleccion!=5){
-        case(1):
-            buscar(&lista, 1);
-            break;
-        case(2):
-            buscar(&lista, 2);
-            break; 
-        case(3):
-            buscar(&lista, 3);
-            break;
-        case(4):
-            ConcurredPorts(lista);
-            break;
-    }
-}
-    
+int main() {
+    LinkedList lista;
+    Graph graph;
 
+    readfiles(graph); // Esto construirá el grafo a partir de las direcciones IP
+    // Ahora, puedes usar 'graph' para cualquier operación relacionada con el grafo
+
+    cout << "\nHola, que deseas hacer?" << endl;
+    cout << "1. Buscar en el archivo por Fechas" << endl;
+    cout << "2. Ips" << endl;
+    cout << "3. Puertos de IP" << endl;
+    cout << "4. Mostrar los 5 puertos mas concurridos" << endl;
+    cout << "5. Ver nodos con mayor fan-out (posibles boot masters)" << endl;
+    cout << "6. Salir" << endl;
+
+    int seleccion;
+    cin >> seleccion;
+
+    while (seleccion != 6) {
+        switch (seleccion) {
+            case 1:
+                buscar(&lista, 1);
+                break;
+            case 2:
+                buscar(&lista, 2);
+                break;
+            case 3:
+                buscar(&lista, 3);
+                break;
+            case 4:
+                ConcurredPorts(lista);
+                break;
+            case 5:
+                auto maxFanOutNodes = graph.getMaxFanOutNodes();
+                cout << "Nodos con mayor fan-out:" << endl;
+                for (auto& node : maxFanOutNodes) {
+                    cout << "Nodo: " << node.first << ", Fan-out: " << node.second << endl;
+                }
+                break;
+        }
+        cout << "\n¿Qué más deseas hacer?" << endl;
+        cin >> seleccion;
+    }
+
+    return 0;
 }
